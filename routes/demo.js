@@ -150,33 +150,29 @@ router.post("/login", async function (req, res) {
 });
 
 router.get("/admin", async function (req, res) {
-  if (!req.session.isAuthenticated) {
+  if (!res.locals.isAuth) {
     // if (!req.session.user)
     return res.status(401).render("401");
   }
 
-  const user = await db
-    .getDb()
-    .collection("users")
-    .findOne({ _id: req.session.user.id });
-  if (!user || !user.isAdmin) {
-    res.status(403).render("403");
+  if (!res.locals.isAdmin) {
+    return res.status(403).render("403");
   }
   res.render("admin");
+});
+
+router.get("/profile", function (req, res) {
+  if (!res.locals.isAuth) {
+    // if (!req.session.user)
+    return res.status(401).render("401");
+  }
+  res.render("profile");
 });
 
 router.post("/logout", function (req, res) {
   req.session.user = null;
   req.session.isAuthenticated = false;
   res.redirect("/");
-});
-
-router.get("/profile", function (req, res) {
-  if (!req.session.isAuthenticated) {
-    // if (!req.session.user)
-    return res.status(401).render("401");
-  }
-  res.render("profile");
 });
 
 module.exports = router;
